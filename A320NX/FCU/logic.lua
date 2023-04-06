@@ -199,14 +199,18 @@ fs2020_variable_subscribe("AUTOPILOT ALTITUDE LOCK VAR:3", "Feet", function(alt)
     txt_set(text_alt, alt_text)
 end)
 
+local current_alt_managed
+
 fs2020_variable_subscribe("L:A32NX_FCU_VS_MANAGED", "Num", function(managed)
-    if managed == 1 then    
+    current_alt_managed = managed
+    visible(image_dot_alt, current_alt_managed == 1)
+    if current_alt_managed == 1 then    
            txt_set(text_vs, "-----")
     else
-        if track_mode == TRACK_MODE_FS then
-           txt_set(text_vs, "0000")
+        if track_mode == TRACK_MODE_VS then
+            txt_set(text_vs, "0000")
         else
-           txt_set(text_vs, "+0.0")
+            txt_set(text_vs, "+0.0")
         end
     end
 end)
@@ -231,10 +235,12 @@ end)
 
 fs2020_variable_subscribe("L:A32NX_TRK_FPA_MODE_ACTIVE", "Num", function(tm)
     track_mode = tm
-    if track_mode == TRACK_MODE_FPA then
-        txt_set(text_vs, "+0.0")
-    else
-        txt_set(text_vs, "0000")
+    if current_alt_managed == 0 then
+        if track_mode == TRACK_MODE_FPA then
+            txt_set(text_vs, "+0.0")
+        else
+            txt_set(text_vs, "0000")
+        end
     end
     visible(text_track_mode_vs, track_mode == TRACK_MODE_VS)
     visible(text_track_mode_fpa, track_mode == TRACK_MODE_FPA)
@@ -257,6 +263,7 @@ fs2020_variable_subscribe("L:A32NX_AUTOPILOT_VS_SELECTED", "Num", function(vs)
          sign = "";
         end
         vs_text = sign .. lpad(string.format("%d", var_round(vs_unsigned, 0)), 4, "0");
+        if current_alt_managed then vs_text = "-----" end
         
         txt_set(text_vs, vs_text)
     end
@@ -273,7 +280,8 @@ fs2020_variable_subscribe("L:A32NX_AUTOPILOT_FPA_SELECTED", "Num", function(fpa)
          sign = "+";
         end
         fpa_text = sign .. string.format("%2.1f", var_round(fpa_unsigned, 2));
-        
+        if current_alt_managed then vs_text = "-----" end
+
         txt_set(text_vs, fpa_text)
     end
 end)
@@ -364,7 +372,6 @@ end)
 local metric_alt_mode = 0
 
 fs2020_variable_subscribe("L:A32NX_METRIC_ALT_TOGGLE", "Num", function(mode)
-    print("Alt metric mode" .. mode)
     metric_alt_mode = mode
 end)
 
