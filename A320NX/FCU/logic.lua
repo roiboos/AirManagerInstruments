@@ -147,6 +147,14 @@ fs2020_variable_subscribe("L:A32NX_AUTOPILOT_SPEED_SELECTED", "Number", function
     txt_set(text_spd, spd_text)
 end)
 
+fs2020_variable_subscribe("L:A32NX_FCU_SPD_MANAGED_DOT", "Number",
+                          "L:A32NX_FCU_SPD_MANAGED_DASHES", "Number", function(spd_dot, spd_dashes)
+    visible(image_dot_spd, spd_dot == 1)
+    if spd_dashes == 1 then
+        txt_set(text_spd, "---")
+    end
+end)
+
 -- ALT
 image_dot_alt = img_add("dot.png", 839, 63, 25, 28)
 text_alt = txt_add("", "font:AirbusFCU.ttf; size:32; color: #FFFA99; halign:right;", 678, 63, 162, 42)
@@ -202,7 +210,6 @@ end)
 local current_alt_managed
 
 fs2020_variable_subscribe("L:A32NX_FCU_VS_MANAGED", "Num", function(managed)
-    current_alt_managed = managed
     visible(image_dot_alt, current_alt_managed == 1)
     if current_alt_managed == 1 then    
            txt_set(text_vs, "-----")
@@ -212,6 +219,14 @@ fs2020_variable_subscribe("L:A32NX_FCU_VS_MANAGED", "Num", function(managed)
         else
             txt_set(text_vs, "+0.0")
         end
+    end
+end)
+
+fs2020_variable_subscribe("L:A32NX_FCU_ALT_MANAGED", "Number", function(managed)
+    current_alt_managed = managed
+    visible(image_dot_alt, managed == 1)
+    if managed == 1 then 
+        txt_set(text_vs, "-----")
     end
 end)
 
