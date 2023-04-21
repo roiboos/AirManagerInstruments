@@ -229,21 +229,24 @@ function navaid1_changed(pos)
 end
 
 fs2020_variable_subscribe("L:A32NX_EFIS_L_NAVAID_1_MODE", "Num", navaid1_changed)
+request_callback(navaid1_changed)
 
 -- ADF-VOR 2
 
 switch_navaid2_mode = switch_add("switch_left.png", "switch_ctr.png", "switch_right.png", 512, 314, 113, 58, "CIRCULAIR", 
     function (pos, dir)
-        new_mode2 = navaid_modes[pos+dir+1];
+        index2 = pos + dir
+        new_mode2 = navaid_modes[index2+1];
         fs2020_variable_write("L:A32NX_EFIS_L_NAVAID_2_MODE",  "Num", new_mode2)
     end)
     
 function navaid2_changed(pos)
-                realpos = navaid_modes[pos+1]
-                switch_set_position(switch_navaid2_mode, var_round(realpos,0))             
+                realpos2 = navaid_modes[pos+1]
+                switch_set_position(switch_navaid2_mode, var_round(realpos2,0))             
 end
 
 fs2020_variable_subscribe("L:A32NX_EFIS_L_NAVAID_2_MODE", "Num", navaid2_changed)
+request_callback(navaid2_changed)
 
 -- Baro display
 fs2020_variable_subscribe("A:KOHLSMAN SETTING HG:1", "inHg", baro_pressure_changed_inhg)
