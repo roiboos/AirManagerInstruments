@@ -218,12 +218,17 @@ local navaid_modes = {1, 0, 2}
 
 switch_navaid1_mode = switch_add("switch_left.png", "switch_ctr.png", "switch_right.png", 283, 312, 113, 58, "CIRCULAIR", 
     function (pos, dir)
-        index = pos+dir;
-        new_mode = navaid_modes[index+1];
+        print("Pos " .. pos)
+        print("Dir " .. dir)
+        index = pos + dir
+        print("Change Navaid pos" .. index)
+        new_mode = navaid_modes[index+1]
+        print("New mode" .. new_mode)
         fs2020_variable_write("L:A32NX_EFIS_L_NAVAID_1_MODE",  "Num", new_mode)
     end)
     
 function navaid1_changed(pos)
+                print("Navaid pos" .. pos)
                 realpos = navaid_modes[pos+1]
                 switch_set_position(switch_navaid1_mode, var_round(realpos,0))             
 end
