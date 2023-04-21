@@ -3,7 +3,7 @@ snd_click = sound_add("click.wav")
 
 BARO_MODE_QFE = 0
 BARO_MODE_QNH = 1
-BARO_MODE_STD = 2
+BARO_MODE_STD = 3
 
 BARO_HPA_HG  = 0
 BARO_HPA_HPA = 1
@@ -15,7 +15,7 @@ ND_FILTER_WPT  = 3
 ND_FILTER_NDB  = 4
 ND_FILTER_ARPT = 5
 
-local baro_mode
+local baro_mode = 0
 local baro_hpa
 
 text_baro = txt_add("", "font:AirbusFCU.ttf; size:32; color: #FFFA99; halign:left;", 87, 124, 130, 42)
@@ -23,13 +23,13 @@ text_baro_mode_qnh = txt_add("QNH", "font:Poppins-SemiBold.ttf; size:28; color: 
 text_baro_mode_qfe = txt_add("QFE", "font:Poppins-SemiBold.ttf; size:28; color: #FFFA99; halign:left;", 95, 95, 49, 22)
 
 function baro_pressure_changed_inhg(inHg)
-    if baro_hpa == BARO_HPA_HG and baro_mode ~= BARO_MODE_STD then
+    if baro_hpa == BARO_HPA_HG and baro_mode <= BARO_MODE_QNH then
         txt_set(text_baro, string.format("%.2f", var_round(inHg, 2)))
     end            
 end
 
 function baro_pressure_changed_hpa(hpa)
-    if baro_hpa == BARO_HPA_HPA and baro_mode ~= BARO_MODE_STD then
+    if baro_hpa == BARO_HPA_HPA and baro_mode <= BARO_MODE_QNH then
         txt_set(text_baro, string.format("%.4s", var_round(hpa, 0)))
     end
 end
@@ -60,7 +60,7 @@ request_callback(baro_hpa_changed)
 
 -- Baro pressure set
 dial_baro = dial_add("btn_baro.png", 105, 223, 64, 64, function (direction)  
-    if baro_mode < BARO_MODE_STD then
+    if baro_mode <= BARO_MODE_QNH then
         if direction == 1 then
             fs2020_event("KOHLSMAN_INC")
         elseif direction == -1 then
@@ -74,18 +74,19 @@ function baro_mode_changed(baro)
     baro_mode = baro
     visible(text_baro_mode_qnh, baro_mode == BARO_MODE_QNH)
     visible(text_baro_mode_qfe, baro_mode == BARO_MODE_QFE)
+    if baro_mode > BARO_MODE_QNH then
+        txt_set(text_baro, "Std")
+    end   
 end
 
 fs2020_variable_subscribe("L:XMLVAR_Baro1_Mode", "Num", baro_mode_changed)
 
 function baro_std()
-    baro_mode = baro_mode + 1;
-    if baro_mode > BARO_MODE_STD then
+    if baro_mode <= BARO_MODE_QNH then
+        baro_mode = BARO_MODE_STD
+    else 
         baro_mode = BARO_MODE_QNH
-    end 
-    if baro_mode == BARO_MODE_STD then
-        txt_set(text_baro, "Std")
-    end   
+    end    
     fs2020_variable_write("L:XMLVAR_Baro1_Mode",  "Num", baro_mode)
     sound_play(snd_click)
 end
