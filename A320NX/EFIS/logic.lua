@@ -37,20 +37,22 @@ end
 -- Baro (hPa or hg)
 img_knob_baro_hpa = img_add("switch_baro.png", 95,206,92,92)
 
-switch_baro = switch_add(nil, nil, 94, 190, 100, 30, "CIRCULAIR", 
+switch_baro = switch_add(nil, nil, 85, 205, 100, 100, "CIRCULAIR", 
     function (pos, dir)
         fs2020_variable_write("L:XMLVAR_BARO_SELECTOR_HPA_1",  "Num", pos+dir)
     end)
     
 function baro_hpa_changed(pos)
-                baro_hpa = pos
-                if baro_hpa == BARO_HPA_HG then 
-                    request_callback(baro_pressure_changed_inhg)
-                else
-                    request_callback(baro_pressure_changed_hpa)
+                if(pos >= 0 and pos <= 1) then
+                    baro_hpa = pos
+                    if baro_hpa == BARO_HPA_HG then 
+                        request_callback(baro_pressure_changed_inhg)
+                    else
+                        request_callback(baro_pressure_changed_hpa)
+                    end
+                    switch_set_position(switch_baro, (var_round(pos,0)))             
+                    rotate(img_knob_baro_hpa, (pos*84)-84,"LOG", 0.1)
                 end
-                switch_set_position(switch_baro, (var_round(pos,0)))             
-                rotate(img_knob_baro_hpa, (pos*84)-84,"LOG", 0.1)
 end
 
 fs2020_variable_subscribe("L:XMLVAR_Baro_Selector_HPA_1", "Num", baro_hpa_changed)

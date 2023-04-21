@@ -160,17 +160,9 @@ image_dot_alt = img_add("dot.png", 839, 63, 25, 28)
 text_alt = txt_add("", "font:AirbusFCU.ttf; size:32; color: #FFFA99; halign:right;", 678, 63, 162, 42)
 text_vs = txt_add("", "font:AirbusFCU.ttf; size:32; color: #FFFA99; halign:right;", 855, 64, 162, 42)
 
-dial_alt = dial_add("knob_alt.png", 746, 195, 66, 67, function(direction)
-    if direction == 1 then
-        fs2020_event("AP_ALT_VAR_INC")
-    elseif direction == -1 then
-        fs2020_event("AP_ALT_VAR_DEC")
-    end
-end)
-
 img_knob_alt_step = img_add("switch_step.png", 720, 180, 92, 92)
 
-switch_alt_step = switch_add(nil, nil, 720, 168, 100, 30, "CIRCULAIR", 
+switch_alt_step = switch_add(nil, nil, 720, 178, 100, 100, "CIRCULAIR", 
     function (pos, dir)
         if pos+dir == 1 then 
             fs2020_event("A32NX.FCU_ALT_INCREMENT_SET", 1000)
@@ -178,6 +170,14 @@ switch_alt_step = switch_add(nil, nil, 720, 168, 100, 30, "CIRCULAIR",
             fs2020_event("A32NX.FCU_ALT_INCREMENT_SET", 100)
         end
     end)
+
+dial_alt = dial_add("knob_alt.png", 746, 195, 66, 67, function(direction)
+    if direction == 1 then
+        fs2020_event("AP_ALT_VAR_INC")
+    elseif direction == -1 then
+        fs2020_event("AP_ALT_VAR_DEC")
+    end
+end)
 
 function alt_step_changed(step_size)
                 if step_size == 1000 then pos = 1 else pos = 0 end
@@ -240,7 +240,7 @@ text_track_mode_fpa2 = txt_add("FPA", "font:Poppins-SemiBold.ttf; size:30; color
 text_track_mode_hdg2 = txt_add("HDG", "font:Poppins-SemiBold.ttf; size:30; color: #FFFA99; halign:left;", 307, 34, 70, 24)
 text_track_mode_trk2 = txt_add("TRK", "font:Poppins-SemiBold.ttf; size:30; color: #FFFA99; halign:left;", 355, 34, 70, 24)
 
-dial_vs = dial_add(nil, 972, 195, 62, 61, function(direction)
+dial_vs = dial_add(nil, 982, 200, 62, 61, function(direction)
     if direction == 1 then
         fs2020_event("AP_VS_VAR_INC")
     elseif direction == -1 then
@@ -278,7 +278,6 @@ fs2020_variable_subscribe("L:A32NX_AUTOPILOT_VS_SELECTED", "Num", function(vs)
          sign = "";
         end
         vs_text = sign .. lpad(string.format("%d", var_round(vs_unsigned, 0)), 4, "0");
-        if current_alt_managed then vs_text = "-----" end
         
         txt_set(text_vs, vs_text)
     end
@@ -295,7 +294,7 @@ fs2020_variable_subscribe("L:A32NX_AUTOPILOT_FPA_SELECTED", "Num", function(fpa)
          sign = "+";
         end
         fpa_text = sign .. string.format("%2.1f", var_round(fpa_unsigned, 2));
-        if current_alt_managed then vs_text = "-----" end
+        if current_alt_managed then vs_text = "Z" end
 
         txt_set(text_vs, fpa_text)
     end
