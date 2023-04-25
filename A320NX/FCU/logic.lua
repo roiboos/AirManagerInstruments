@@ -208,10 +208,10 @@ fs2020_variable_subscribe("AUTOPILOT ALTITUDE LOCK VAR:3", "Feet", function(alt)
 end)
 
 local current_alt_managed
+local current_vs_managed
 
 fs2020_variable_subscribe("L:A32NX_FCU_VS_MANAGED", "Num", function(managed)
-    print("VS Managed " .. managed)
-    visible(image_dot_alt, current_alt_managed == 1)
+    current_vs_managed = managed
     if managed == 1 then    
            txt_set(text_vs, "-----")
     else
@@ -224,7 +224,6 @@ fs2020_variable_subscribe("L:A32NX_FCU_VS_MANAGED", "Num", function(managed)
 end)
 
 fs2020_variable_subscribe("L:A32NX_FCU_ALT_MANAGED", "Number", function(managed)
-    print("Managed " .. managed)
     current_alt_managed = managed
     visible(image_dot_alt, managed == 1)
     if managed == 1 then 
@@ -270,36 +269,40 @@ fs2020_variable_subscribe("L:A32NX_TRK_FPA_MODE_ACTIVE", "Num", function(tm)
 end)
 
 fs2020_variable_subscribe("L:A32NX_AUTOPILOT_VS_SELECTED", "Num", function(vs)
-    if track_mode == TRACK_MODE_VS then
-        vs_unsigned = vs; 
-        sign  = "+";   
-        if vs < 0 then
-         sign = "-"
-         vs_unsigned = vs * -1 
-        elseif vs == 0 then
-         sign = "";
+    if current_vs_managed == 0 then
+        if track_mode == TRACK_MODE_VS then
+            vs_unsigned = vs; 
+            sign  = "+";   
+            if vs < 0 then
+             sign = "-"
+             vs_unsigned = vs * -1 
+            elseif vs == 0 then
+             sign = "";
+            end
+            vs_text = sign .. lpad(string.format("%d", var_round(vs_unsigned, 0)), 4, "0");
+            
+            txt_set(text_vs, vs_text)
         end
-        vs_text = sign .. lpad(string.format("%d", var_round(vs_unsigned, 0)), 4, "0");
-        
-        txt_set(text_vs, vs_text)
     end
 end)
 
 fs2020_variable_subscribe("L:A32NX_AUTOPILOT_FPA_SELECTED", "Num", function(fpa)
-    if track_mode == TRACK_MODE_FPA then
-        fpa_unsigned = fpa; 
-        sign  = "+";   
-        if fpa < 0 then
-         sign = "-"
-         fpa_unsigned = fpa * -1 
-        elseif fpa == 0 then
-         sign = "+";
+    if current_vs_managed == 0 then
+        if track_mode == TRACK_MODE_FPA then
+            fpa_unsigned = fpa; 
+            sign  = "+";   
+            if fpa < 0 then
+             sign = "-"
+             fpa_unsigned = fpa * -1 
+            elseif fpa == 0 then
+             sign = "+";
+            end
+            fpa_text = sign .. string.format("%2.1f", var_round(fpa_unsigned, 2));
+            if current_alt_managed then vs_text = "Z" end
+    
+            txt_set(text_vs, fpa_text)
         end
-        fpa_text = sign .. string.format("%2.1f", var_round(fpa_unsigned, 2));
-        if current_alt_managed then vs_text = "Z" end
-
-        txt_set(text_vs, fpa_text)
-    end
+   end
 end)
 
 btn_vs_fpa = button_add(nil, nil, 997, 216, 30, 30, function()
