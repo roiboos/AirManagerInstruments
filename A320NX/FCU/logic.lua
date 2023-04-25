@@ -210,8 +210,9 @@ end)
 local current_alt_managed
 
 fs2020_variable_subscribe("L:A32NX_FCU_VS_MANAGED", "Num", function(managed)
+    print("VS Managed " .. managed)
     visible(image_dot_alt, current_alt_managed == 1)
-    if current_alt_managed == 1 then    
+    if managed == 1 then    
            txt_set(text_vs, "-----")
     else
         if track_mode == TRACK_MODE_VS then
@@ -223,6 +224,7 @@ fs2020_variable_subscribe("L:A32NX_FCU_VS_MANAGED", "Num", function(managed)
 end)
 
 fs2020_variable_subscribe("L:A32NX_FCU_ALT_MANAGED", "Number", function(managed)
+    print("Managed " .. managed)
     current_alt_managed = managed
     visible(image_dot_alt, managed == 1)
     if managed == 1 then 
